@@ -163,16 +163,22 @@ document.addEventListener('DOMContentLoaded', function() {
             next = next.nextSibling;
         }
         itemRow.parentNode.insertBefore(newRow, next);
+
+        // Atualiza o rowspan da célula de marca do item
+        atualizarRowspanMarca(itemRow);
+
         // Remover marca
         const removeMarcaBtn = newRow.querySelector('.btn-remove-marca');
         removeMarcaBtn.addEventListener('click', () => {
             newRow.remove();
-            atualizarValoresPrincipaisDoItem(row);
+            atualizarRowspanMarca(itemRow);
+            atualizarValoresPrincipaisDoItem(itemRow);
         });
+
         // Atualizar valores principais ao digitar
         ['valor-unit-marca-1','valor-unit-marca-2','valor-unit-marca-3'].forEach((cls, idx) => {
             newRow.querySelector('.' + cls).addEventListener('input', () => {
-                atualizarValoresPrincipaisDoItem(row);
+                atualizarValoresPrincipaisDoItem(itemRow);
             });
         });
         // Foco automático no campo de nome da marca
@@ -196,6 +202,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (typeof calcularItem === 'function') calcularItem(itemRow);
                 if (typeof calcularTotais === 'function') calcularTotais();
             }
+        }
+
+        // Função para atualizar o rowspan da célula de marca
+        function atualizarRowspanMarca(itemRow) {
+            const marcaCell = itemRow.querySelector('.marca-cell');
+            if (!marcaCell) return;
+            // Conta quantas linhas de marca existem após o item
+            let count = 1; // pelo menos 1 (linha principal)
+            let next = itemRow.nextSibling;
+            while (next && next.classList && next.classList.contains('marca-row')) {
+                count++;
+                next = next.nextSibling;
+            }
+            marcaCell.setAttribute('rowspan', count);
         }
     }
     

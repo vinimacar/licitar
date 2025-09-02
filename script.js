@@ -191,16 +191,32 @@ document.addEventListener('DOMContentLoaded', function() {
             atualizarValoresPrincipaisDoItem(itemRow);
         });
 
-        // Atualizar valores principais ao digitar
+        // Atualizar valores principais ao digitar (marca -> principal)
         ['valor-unit-marca-1','valor-unit-marca-2','valor-unit-marca-3'].forEach((cls, idx) => {
             const input = newRow.querySelector('.' + cls);
             input.addEventListener('input', () => {
                 atualizarValoresPrincipaisDoItem(itemRow);
             });
-            // Garante que o campo está habilitado e visível
             input.removeAttribute('disabled');
             input.style.display = '';
         });
+        // Atualizar marca ao digitar nos campos principais (principal -> marca)
+        for (let i = 1; i <= 3; i++) {
+            const principalInput = itemRow.querySelector('.valor-unit-' + i);
+            principalInput.addEventListener('input', () => {
+                // Atualiza o campo da última marca, se houver
+                let next = itemRow.nextSibling;
+                let ultimaMarca = null;
+                while (next && next.classList && next.classList.contains('marca-row')) {
+                    ultimaMarca = next;
+                    next = next.nextSibling;
+                }
+                if (ultimaMarca) {
+                    const marcaInput = ultimaMarca.querySelector('.valor-unit-marca-' + i);
+                    if (marcaInput) marcaInput.value = principalInput.value;
+                }
+            });
+        }
         // Foco automático no campo de valor unitário 1
         newRow.querySelector('.valor-unit-marca-1').focus();
 

@@ -142,13 +142,19 @@ document.addEventListener('DOMContentLoaded', function() {
         const newRow = document.createElement('tr');
         newRow.className = 'marca-row';
         newRow.innerHTML = `
-            <td></td>
-            <td colspan="4"></td>
-            <td><input type="text" class="item-marca" placeholder="Marca"></td>
-            <td colspan="2"><input type="number" class="valor-unit-marca-1" placeholder="Valor Unit. Forn. 1" step="0.01" min="0"></td>
-            <td colspan="2"><input type="number" class="valor-unit-marca-2" placeholder="Valor Unit. Forn. 2" step="0.01" min="0"></td>
-            <td colspan="2"><input type="number" class="valor-unit-marca-3" placeholder="Valor Unit. Forn. 3" step="0.01" min="0"></td>
-            <td colspan="7"></td>
+            <td></td> <!-- N. -->
+            <td colspan="4"></td> <!-- Item, Descrição, Unidade, Qtd -->
+            <td><input type="text" class="item-marca" placeholder="Marca"></td> <!-- Marca -->
+            <td></td> <!-- Fornecedor 1 -->
+            <td><input type="number" class="valor-unit-marca-1" placeholder="Valor Unit. 1" step="0.01" min="0"></td> <!-- Valor Unit. 1 -->
+            <td></td> <!-- Valor Total 1 -->
+            <td></td> <!-- Fornecedor 2 -->
+            <td><input type="number" class="valor-unit-marca-2" placeholder="Valor Unit. 2" step="0.01" min="0"></td> <!-- Valor Unit. 2 -->
+            <td></td> <!-- Valor Total 2 -->
+            <td></td> <!-- Fornecedor 3 -->
+            <td><input type="number" class="valor-unit-marca-3" placeholder="Valor Unit. 3" step="0.01" min="0"></td> <!-- Valor Unit. 3 -->
+            <td></td> <!-- Valor Total 3 -->
+            <td colspan="4"></td> <!-- Valor Médio, Menor Preço -->
             <td><button type="button" class="btn-remove-marca"><i class="fas fa-minus"></i></button></td>
         `;
         // Adiciona a linha logo após as outras marcas do mesmo item

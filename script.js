@@ -137,34 +137,46 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Função para adicionar nova marca
     function adicionarMarca(row) {
-        // Adiciona uma nova marca dentro do .marcas-wrapper da célula de marcas do item
-        const marcaContainer = row.querySelector('.marca-container .marcas-wrapper');
-        if (!marcaContainer) return;
-
-        // Cria o elemento da marca
-        const marcaItem = document.createElement('div');
-        marcaItem.className = 'marca-item';
-        marcaItem.innerHTML = `
-            <input type="radio" name="marca-selecionada-${row.querySelector('.item-number').textContent}" class="marca-radio" title="Selecionar esta marca">
-            <input type="text" class="item-marca" placeholder="Marca">
-            <button type="button" class="btn-remove-marca"><i class="fas fa-minus"></i></button>
+        // Cria uma nova linha de marca como sublinha do item
+        const itemRow = row;
+        const newRow = document.createElement('tr');
+        newRow.className = 'marca-row';
+        newRow.innerHTML = `
+            <td></td>
+            <td colspan="4"></td>
+            <td><input type="text" class="item-marca" placeholder="Marca"></td>
+            <td></td>
+            <td><input type="number" class="valor-unit-marca-1" placeholder="Valor Unit. 1" step="0.01" min="0"></td>
+            <td></td>
+            <td></td>
+            <td><input type="number" class="valor-unit-marca-2" placeholder="Valor Unit. 2" step="0.01" min="0"></td>
+            <td></td>
+            <td></td>
+            <td><input type="number" class="valor-unit-marca-3" placeholder="Valor Unit. 3" step="0.01" min="0"></td>
+            <td></td>
+            <td colspan="6"></td>
+            <td><button type="button" class="btn-remove-marca"><i class="fas fa-minus"></i></button></td>
         `;
-
-        // Adiciona o bloco da marca ao container
-        marcaContainer.appendChild(marcaItem);
-
+        // Adiciona a linha logo após as outras marcas do mesmo item
+        let next = itemRow.nextSibling;
+        while (next && next.classList && next.classList.contains('marca-row')) {
+            next = next.nextSibling;
+        }
+        itemRow.parentNode.insertBefore(newRow, next);
         // Remover marca
-        const removeMarcaBtn = marcaItem.querySelector('.btn-remove-marca');
+        const removeMarcaBtn = newRow.querySelector('.btn-remove-marca');
         removeMarcaBtn.addEventListener('click', () => {
-            marcaItem.remove();
+            newRow.remove();
             atualizarValoresPrincipaisDoItem(row);
         });
-
+        // Atualizar valores principais ao digitar
+        ['valor-unit-marca-1','valor-unit-marca-2','valor-unit-marca-3'].forEach((cls, idx) => {
+            newRow.querySelector('.' + cls).addEventListener('input', () => {
+                atualizarValoresPrincipaisDoItem(row);
+            });
+        });
         // Foco automático no campo de nome da marca
-        marcaItem.querySelector('.item-marca').focus();
-        // Se quiser atualizar valores principais ao digitar, adicione listeners aqui se necessário
-        // Exemplo:
-        // marcaItem.querySelector('.item-marca').addEventListener('input', () => atualizarValoresPrincipaisDoItem(row));
+        newRow.querySelector('.item-marca').focus();
 
         // Atualiza os valores principais do item para refletir a última marca informada
         function atualizarValoresPrincipaisDoItem(itemRow) {

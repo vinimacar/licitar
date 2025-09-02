@@ -137,40 +137,66 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Função para adicionar nova marca
     function adicionarMarca(row) {
-        const marcasWrapper = row.querySelector('.marcas-wrapper');
-        const novaMarca = document.createElement('div');
-        novaMarca.className = 'marca-item';
-        novaMarca.innerHTML = `
-            <input type="text" class="item-marca" placeholder="Marca adicional">
-            <input type="number" class="valor-unit-marca" placeholder="Valor Unitário" step="0.01" min="0">
-            <span class="valor-total-marca">R$ 0,00</span>
-            <button type="button" class="btn-remove-marca"><i class="fas fa-minus"></i></button>
+        // Cria uma nova linha de marca como sublinha do item
+        const itemRow = row;
+        const newRow = document.createElement('tr');
+        newRow.className = 'marca-row';
+        newRow.innerHTML = `
+            <td></td>
+            <td colspan="4"></td>
+            <td><input type="text" class="item-marca" placeholder="Marca"></td>
+            <td></td>
+            <td><input type="number" class="valor-unit-marca-1" placeholder="Valor Unit. 1" step="0.01" min="0"></td>
+            <td></td>
+            <td></td>
+            <td><input type="number" class="valor-unit-marca-2" placeholder="Valor Unit. 2" step="0.01" min="0"></td>
+            <td></td>
+            <td></td>
+            <td><input type="number" class="valor-unit-marca-3" placeholder="Valor Unit. 3" step="0.01" min="0"></td>
+            <td></td>
+            <td colspan="6"></td>
+            <td><button type="button" class="btn-remove-marca"><i class="fas fa-minus"></i></button></td>
         `;
-
-        // Adicionar event listener para remover marca
-        const removeMarcaBtn = novaMarca.querySelector('.btn-remove-marca');
-        removeMarcaBtn.addEventListener('click', () => {
-            novaMarca.remove();
-        });
-
-        // Atualizar valor total ao digitar valor unitário ou quantidade
-        const valorUnitMarca = novaMarca.querySelector('.valor-unit-marca');
-        const valorTotalMarca = novaMarca.querySelector('.valor-total-marca');
-        const qtdInput = row.querySelector('.item-quantidade');
-        function atualizarValorTotalMarca() {
-            const qtd = parseFloat(qtdInput.value) || 0;
-            const valorUnit = parseFloat(valorUnitMarca.value) || 0;
-            valorTotalMarca.textContent = formatarMoeda(qtd * valorUnit);
+        // Adiciona a linha logo após as outras marcas do mesmo item
+        let next = itemRow.nextSibling;
+        while (next && next.classList && next.classList.contains('marca-row')) {
+            next = next.nextSibling;
         }
-        valorUnitMarca.addEventListener('input', atualizarValorTotalMarca);
-        qtdInput.addEventListener('input', atualizarValorTotalMarca);
+        itemRow.parentNode.insertBefore(newRow, next);
+        // Remover marca
+        const removeMarcaBtn = newRow.querySelector('.btn-remove-marca');
+        removeMarcaBtn.addEventListener('click', () => {
+            newRow.remove();
+            atualizarValoresPrincipaisDoItem(row);
+        });
+        // Atualizar valores principais ao digitar
+        ['valor-unit-marca-1','valor-unit-marca-2','valor-unit-marca-3'].forEach((cls, idx) => {
+            newRow.querySelector('.' + cls).addEventListener('input', () => {
+                atualizarValoresPrincipaisDoItem(row);
+            });
+        });
+        // Foco automático no campo de nome da marca
+        newRow.querySelector('.item-marca').focus();
 
-        marcasWrapper.appendChild(novaMarca);
-
-        // Foco automático no campo de valor unitário
-        valorUnitMarca.focus();
-
-        atualizarValorTotalMarca();
+        // Atualiza os valores principais do item para refletir a última marca informada
+        function atualizarValoresPrincipaisDoItem(itemRow) {
+            // Busca todas as linhas de marca logo após o item
+            let next = itemRow.nextSibling;
+            let ultimaMarca = null;
+            while (next && next.classList && next.classList.contains('marca-row')) {
+                ultimaMarca = next;
+                next = next.nextSibling;
+            }
+            if (ultimaMarca) {
+                for (let i = 1; i <= 3; i++) {
+                    const valor = ultimaMarca.querySelector('.valor-unit-marca-' + i).value;
+                    itemRow.querySelector('.valor-unit-' + i).value = valor;
+                }
+                // Dispara cálculo
+                if (typeof calcularItem === 'function') calcularItem(itemRow);
+                if (typeof calcularTotais === 'function') calcularTotais();
+            }
+        }
     }
     
 

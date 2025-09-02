@@ -146,7 +146,10 @@ document.addEventListener('DOMContentLoaded', function() {
         newRow.className = 'marca-row';
         newRow.innerHTML = `
             <td></td> <!-- N. -->
-            <td colspan="4"></td> <!-- Item, Descrição, Unidade, Qtd -->
+            <td></td> <!-- Item -->
+            <td></td> <!-- Descrição -->
+            <td></td> <!-- Unidade -->
+            <td></td> <!-- Qtd -->
             <td><input type="text" class="item-marca" placeholder="Marca"></td> <!-- Marca -->
             <td></td> <!-- Fornecedor 1 -->
             <td><input type="number" class="valor-unit-marca-1" placeholder="Valor Unit. 1" step="0.01" min="0"></td> <!-- Valor Unit. 1 -->
@@ -157,7 +160,10 @@ document.addEventListener('DOMContentLoaded', function() {
             <td></td> <!-- Fornecedor 3 -->
             <td><input type="number" class="valor-unit-marca-3" placeholder="Valor Unit. 3" step="0.01" min="0"></td> <!-- Valor Unit. 3 -->
             <td></td> <!-- Valor Total 3 -->
-            <td colspan="4"></td> <!-- Valor Médio, Menor Preço -->
+            <td></td> <!-- Valor Médio Unit. -->
+            <td></td> <!-- Valor Médio Total -->
+            <td></td> <!-- Menor Valor Unit. -->
+            <td></td> <!-- Menor Valor Total -->
             <td><button type="button" class="btn-remove-marca"><i class="fas fa-minus"></i></button></td>
         `;
         // Adiciona a linha logo após as outras marcas do mesmo item

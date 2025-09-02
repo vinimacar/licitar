@@ -152,13 +152,13 @@ document.addEventListener('DOMContentLoaded', function() {
             <td></td> <!-- Qtd -->
             <td><input type="text" class="item-marca" placeholder="Marca"></td> <!-- Marca -->
             <td></td> <!-- Fornecedor 1 -->
-            <td><input type="number" class="valor-unit-marca-1" placeholder="Valor Unit. 1" step="0.01" min="0" autofocus></td> <!-- Valor Unit. 1 -->
+            <td><input type="number" class="valor-unit-marca-1" placeholder="Digite o valor" step="0.01" min="0" autofocus></td> <!-- Valor Unit. 1 -->
             <td></td> <!-- Valor Total 1 -->
             <td></td> <!-- Fornecedor 2 -->
-            <td><input type="number" class="valor-unit-marca-2" placeholder="Valor Unit. 2" step="0.01" min="0"></td> <!-- Valor Unit. 2 -->
+            <td><input type="number" class="valor-unit-marca-2" placeholder="Digite o valor" step="0.01" min="0"></td> <!-- Valor Unit. 2 -->
             <td></td> <!-- Valor Total 2 -->
             <td></td> <!-- Fornecedor 3 -->
-            <td><input type="number" class="valor-unit-marca-3" placeholder="Valor Unit. 3" step="0.01" min="0"></td> <!-- Valor Unit. 3 -->
+            <td><input type="number" class="valor-unit-marca-3" placeholder="Digite o valor" step="0.01" min="0"></td> <!-- Valor Unit. 3 -->
             <td></td> <!-- Valor Total 3 -->
             <td></td> <!-- Valor Médio Unit. -->
             <td></td> <!-- Valor Médio Total -->
@@ -166,6 +166,11 @@ document.addEventListener('DOMContentLoaded', function() {
             <td></td> <!-- Menor Valor Total -->
             <td><button type="button" class="btn-remove-marca"><i class="fas fa-minus"></i></button></td>
         `;
+        // Garante que todos os campos de valor unitário estejam habilitados e visíveis
+        newRow.querySelectorAll('input[type="number"]').forEach(input => {
+            input.removeAttribute('disabled');
+            input.style.display = '';
+        });
         // Garante que todos os campos de valor unitário estejam habilitados
         newRow.querySelectorAll('input[type="number"]').forEach(input => input.removeAttribute('disabled'));
         // Adiciona a linha logo após as outras marcas do mesmo item

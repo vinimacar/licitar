@@ -13,6 +13,9 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Garantir que os botões de exportação estejam sempre ativos
+    document.getElementById('export-pdf').removeAttribute('disabled');
+    document.getElementById('export-xls').removeAttribute('disabled');
     // Inicialização do Firebase
     const firebaseConfig = { 
         apiKey: "AIzaSyBUqFdxnLJb4LEpCCRHzbbcwx9ej-8rwck", 

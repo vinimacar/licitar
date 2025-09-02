@@ -13,77 +13,6 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Gráfico de totais
-    let chart = null;
-    function atualizarGraficoTotais() {
-        const total1 = parseFloat(document.getElementById('total-orcamento-1').textContent.replace('R$ ','').replace('.','').replace(',','.')) || 0;
-        const total2 = parseFloat(document.getElementById('total-orcamento-2').textContent.replace('R$ ','').replace('.','').replace(',','.')) || 0;
-        const total3 = parseFloat(document.getElementById('total-orcamento-3').textContent.replace('R$ ','').replace('.','').replace(',','.')) || 0;
-        const ctx = document.getElementById('totaisChart').getContext('2d');
-        if (!chart) {
-            chart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Orçamento 1', 'Orçamento 2', 'Orçamento 3'],
-                    datasets: [{
-                        label: 'Total por Orçamento',
-                        data: [total1, total2, total3],
-                        backgroundColor: ['#2196f3','#43a047','#ffb300']
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true } }
-                }
-            });
-        } else {
-            chart.data.datasets[0].data = [total1, total2, total3];
-            chart.update();
-        }
-    }
-    // Animação de fade-in para linhas
-    function fadeInRow(row) {
-        row.style.opacity = 0;
-        row.style.transition = 'opacity 0.6s';
-        setTimeout(() => { row.style.opacity = 1; }, 10);
-    }
-    // Animação de fade-out para remoção
-    function fadeOutAndRemove(row) {
-        row.style.transition = 'opacity 0.4s';
-        row.style.opacity = 0;
-        setTimeout(() => { row.remove(); }, 400);
-    }
-    // Função para exibir erro visual em campos obrigatórios
-    function setFieldError(input, message) {
-        input.classList.add('input-error');
-        showTooltip(input, message);
-        input.style.borderColor = '#e53935';
-        setTimeout(() => {
-            input.classList.remove('input-error');
-            input.style.borderColor = '';
-        }, 2000);
-    }
-    // Função utilitária para animação de destaque
-    function highlightRow(row) {
-        row.style.transition = 'background 0.5s';
-        row.style.background = '#fffde7';
-        setTimeout(() => {
-            row.style.background = '';
-        }, 800);
-    }
-
-    // Função para tooltip didático
-    function showTooltip(element, message) {
-        let tooltip = document.createElement('div');
-        tooltip.className = 'custom-tooltip';
-        tooltip.textContent = message;
-        document.body.appendChild(tooltip);
-        const rect = element.getBoundingClientRect();
-        tooltip.style.left = rect.left + window.scrollX + 'px';
-        tooltip.style.top = (rect.top + window.scrollY - 32) + 'px';
-        setTimeout(() => { tooltip.remove(); }, 2200);
-    }
     // Garantir que os botões de exportação estejam sempre ativos
     document.getElementById('export-pdf').removeAttribute('disabled');
     document.getElementById('export-xls').removeAttribute('disabled');
@@ -192,32 +121,21 @@ document.addEventListener('DOMContentLoaded', function() {
     function addItem() {
         const newItem = document.importNode(itemTemplate.content, true);
         const row = newItem.querySelector('.item-row');
-        // Validação ao sair dos campos obrigatórios
-        row.querySelectorAll('input,textarea').forEach(input => {
-            input.addEventListener('blur', function() {
-                if (input.classList.contains('item-nome') && !input.value.trim()) {
-                    setFieldError(input, 'O nome do item é obrigatório.');
-                }
-                if (input.classList.contains('item-quantidade') && (!input.value || parseInt(input.value) < 1)) {
-                    setFieldError(input, 'A quantidade deve ser maior que zero.');
-                }
-            });
-        });
+        
+        // Definir número do item
         row.querySelector('.item-number').textContent = itemCounter++;
+        
+        // Adicionar event listeners para cálculos
         setupItemListeners(row);
+        
+        // Adicionar event listener para botão de adicionar marca
         const addMarcaBtn = row.querySelector('.btn-add-marca');
         if (addMarcaBtn) {
-            addMarcaBtn.addEventListener('click', () => {
-                adicionarMarca(row);
-                showTooltip(addMarcaBtn, 'Adicione marcas diferentes para comparar preços!');
-            });
-            addMarcaBtn.addEventListener('mouseenter', () => {
-                showTooltip(addMarcaBtn, 'Clique para adicionar uma nova marca para este item.');
-            });
+            addMarcaBtn.addEventListener('click', () => adicionarMarca(row));
         }
+        
+        // Adicionar à tabela
         itemsContainer.appendChild(newItem);
-        fadeInRow(row);
-        highlightRow(row);
     }
     
     // Função para adicionar nova marca
@@ -225,21 +143,6 @@ document.addEventListener('DOMContentLoaded', function() {
         // Cria uma nova linha de marca como sublinha do item
         const itemRow = row;
         const newRow = document.createElement('tr');
-        // Validação ao sair dos campos obrigatórios da marca (após criar newRow)
-        setTimeout(() => {
-            newRow.querySelectorAll('input').forEach(input => {
-                input.addEventListener('blur', function() {
-                    if (input.classList.contains('item-marca') && !input.value.trim()) {
-                        setFieldError(input, 'O nome da marca é obrigatório.');
-                    }
-                    if (input.classList.contains('valor-unit-marca-1') || input.classList.contains('valor-unit-marca-2') || input.classList.contains('valor-unit-marca-3')) {
-                        if (input.value && parseFloat(input.value) < 0) {
-                            setFieldError(input, 'O valor não pode ser negativo.');
-                        }
-                    }
-                });
-            });
-        }, 0);
         newRow.className = 'marca-row';
         newRow.innerHTML = `
             <td></td> <!-- N. -->
@@ -247,33 +150,22 @@ document.addEventListener('DOMContentLoaded', function() {
             <td></td> <!-- Descrição -->
             <td></td> <!-- Unidade -->
             <td></td> <!-- Qtd -->
-            <td><input type="text" class="item-marca" placeholder="Marca" title="Digite o nome da marca" style="width:90px;"></td>
-            <td><input type="text" class="fornecedor-marca-1" placeholder="Fornecedor" style="width:60px;"></td>
-            <td><input type="number" class="valor-unit-marca-1" placeholder="Valor Unit." step="0.01" min="0" style="width:70px;"></td>
-            <td><span class="valor-total-marca-1">R$ 0,00</span></td>
-            <td><input type="text" class="fornecedor-marca-2" placeholder="Fornecedor" style="width:60px;"></td>
-            <td><input type="number" class="valor-unit-marca-2" placeholder="Valor Unit." step="0.01" min="0" style="width:70px;"></td>
-            <td><span class="valor-total-marca-2">R$ 0,00</span></td>
-            <td><input type="text" class="fornecedor-marca-3" placeholder="Fornecedor" style="width:60px;"></td>
-            <td><input type="number" class="valor-unit-marca-3" placeholder="Valor Unit." step="0.01" min="0" style="width:70px;"></td>
-            <td><span class="valor-total-marca-3">R$ 0,00</span></td>
+            <td><input type="text" class="item-marca" placeholder="Marca"></td> <!-- Marca -->
+            <td></td> <!-- Fornecedor 1 -->
+            <td><input type="number" class="valor-unit-marca-1" placeholder="Digite o valor" step="0.01" min="0" autofocus></td> <!-- Valor Unit. 1 -->
+            <td></td> <!-- Valor Total 1 -->
+            <td></td> <!-- Fornecedor 2 -->
+            <td><input type="number" class="valor-unit-marca-2" placeholder="Digite o valor" step="0.01" min="0"></td> <!-- Valor Unit. 2 -->
+            <td></td> <!-- Valor Total 2 -->
+            <td></td> <!-- Fornecedor 3 -->
+            <td><input type="number" class="valor-unit-marca-3" placeholder="Digite o valor" step="0.01" min="0"></td> <!-- Valor Unit. 3 -->
+            <td></td> <!-- Valor Total 3 -->
             <td></td> <!-- Valor Médio Unit. -->
             <td></td> <!-- Valor Médio Total -->
             <td></td> <!-- Menor Valor Unit. -->
             <td></td> <!-- Menor Valor Total -->
-            <td><button type="button" class="btn-remove-marca" title="Remover esta marca"><i class="fas fa-minus"></i></button></td>
+            <td><button type="button" class="btn-remove-marca"><i class="fas fa-minus"></i></button></td>
         `;
-        highlightRow(newRow);
-        // Tooltip ao focar nos campos
-        newRow.querySelectorAll('input,button').forEach(el => {
-            el.addEventListener('focus', function() {
-                if (el.classList.contains('item-marca')) showTooltip(el, 'Digite o nome da marca.');
-                if (el.classList.contains('valor-unit-marca-1')) showTooltip(el, 'Digite o valor unitário para orçamento 1.');
-                if (el.classList.contains('valor-unit-marca-2')) showTooltip(el, 'Digite o valor unitário para orçamento 2.');
-                if (el.classList.contains('valor-unit-marca-3')) showTooltip(el, 'Digite o valor unitário para orçamento 3.');
-                if (el.classList.contains('btn-remove-marca')) showTooltip(el, 'Clique para remover esta marca.');
-            });
-        });
         // Garante que todos os campos de valor unitário estejam habilitados e visíveis
         newRow.querySelectorAll('input[type="number"]').forEach(input => {
             input.removeAttribute('disabled');
@@ -286,8 +178,7 @@ document.addEventListener('DOMContentLoaded', function() {
         while (next && next.classList && next.classList.contains('marca-row')) {
             next = next.nextSibling;
         }
-    itemRow.parentNode.insertBefore(newRow, next);
-    fadeInRow(newRow);
+        itemRow.parentNode.insertBefore(newRow, next);
 
         // Atualiza o rowspan da célula de marca do item
         atualizarRowspanMarca(itemRow);
@@ -295,32 +186,44 @@ document.addEventListener('DOMContentLoaded', function() {
         // Remover marca
         const removeMarcaBtn = newRow.querySelector('.btn-remove-marca');
         removeMarcaBtn.addEventListener('click', () => {
-            fadeOutAndRemove(newRow);
-            setTimeout(() => {
-                atualizarRowspanMarca(itemRow);
-                atualizarValoresPrincipaisDoItem(itemRow);
-            }, 400);
+            newRow.remove();
+            atualizarRowspanMarca(itemRow);
+            atualizarValoresPrincipaisDoItem(itemRow);
         });
 
-        // Atualizar valor total da marca ao digitar valor unitário ou ao mudar quantidade do item principal
+        // Atualizar valores principais ao digitar (marca -> principal)
         ['valor-unit-marca-1','valor-unit-marca-2','valor-unit-marca-3'].forEach((cls, idx) => {
             const input = newRow.querySelector('.' + cls);
-            const totalSpan = newRow.querySelector('.valor-total-marca-' + (idx+1));
-            function atualizarTotalMarca() {
+            const totalCell = newRow.querySelector('.valor-total-marca-' + (idx+1));
+            input.addEventListener('input', () => {
+                // Calcular valor total da marca
                 const quantidade = parseFloat(itemRow.querySelector('.item-quantidade').value) || 0;
                 const valorUnit = parseFloat(input.value) || 0;
-                const valorTotal = quantidade * valorUnit;
-                if (totalSpan) {
-                    totalSpan.textContent = valorTotal > 0 ? formatarMoeda(valorTotal) : 'R$ 0,00';
+                if (totalCell) {
+                    totalCell.textContent = formatarMoeda(valorUnit * quantidade);
                 }
-            }
-            input.addEventListener('input', atualizarTotalMarca);
-            // Atualizar também ao mudar a quantidade do item principal
-            itemRow.querySelector('.item-quantidade').addEventListener('input', atualizarTotalMarca);
+                atualizarValoresPrincipaisDoItem(itemRow);
+            });
             input.removeAttribute('disabled');
             input.style.display = '';
         });
-    // Se desejar copiar o valor principal para a última marca, pode-se adicionar um botão ou ação específica
+        // Atualizar marca ao digitar nos campos principais (principal -> marca)
+        for (let i = 1; i <= 3; i++) {
+            const principalInput = itemRow.querySelector('.valor-unit-' + i);
+            principalInput.addEventListener('input', () => {
+                // Atualiza o campo da última marca, se houver
+                let next = itemRow.nextSibling;
+                let ultimaMarca = null;
+                while (next && next.classList && next.classList.contains('marca-row')) {
+                    ultimaMarca = next;
+                    next = next.nextSibling;
+                }
+                if (ultimaMarca) {
+                    const marcaInput = ultimaMarca.querySelector('.valor-unit-marca-' + i);
+                    if (marcaInput) marcaInput.value = principalInput.value;
+                }
+            });
+        }
         // Foco automático no campo de valor unitário 1
         newRow.querySelector('.valor-unit-marca-1').focus();
 
@@ -499,7 +402,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('total-orcamento-2').textContent = formatarMoeda(totalOrcamento2);
         document.getElementById('total-orcamento-3').textContent = formatarMoeda(totalOrcamento3);
         document.getElementById('total-final').textContent = formatarMoeda(totalFinal);
-    atualizarGraficoTotais();
     }
     
     // Renumerar itens após exclusão
@@ -542,21 +444,11 @@ document.addEventListener('DOMContentLoaded', function() {
         // Dados
         rows.forEach(row => {
             // Obter todas as marcas
-            let marcasInfo = '';
-            let next = row.nextSibling;
-            let marcasArr = [];
-            while (next && next.classList && next.classList.contains('marca-row')) {
-                const marcaNome = next.querySelector('.item-marca')?.value || '';
-                let valores = [];
-                for (let i = 1; i <= 3; i++) {
-                    const valorUnit = next.querySelector('.valor-unit-marca-' + i)?.value || '';
-                    const valorTotal = next.querySelector('.valor-total-marca-' + i)?.textContent || '';
-                    valores.push(`Fornecedor ${i}: ${valorUnit} (${valorTotal})`);
-                }
-                marcasArr.push(`${marcaNome} [${valores.join(' | ')}]`);
-                next = next.nextSibling;
-            }
-            marcasInfo = marcasArr.join('; ');
+            const marcaItems = row.querySelectorAll('.marca-item');
+            const marcasInfo = Array.from(marcaItems).map(item => {
+                return item.querySelector('.item-marca').value;
+            }).filter(Boolean).join(', ');
+            
             const item = [
                 row.querySelector('.item-number').textContent,
                 row.querySelector('.item-nome').value,
@@ -565,15 +457,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 marcasInfo,
                 row.querySelector('.item-quantidade').value
             ];
+            
+            // Valores dos fornecedores
             for (let i = 1; i <= 3; i++) {
                 const valorUnit = row.querySelector(`.valor-unit-${i}`).value;
                 const valorTotal = row.querySelector(`.valor-total-${i}`).textContent;
                 item.push(valorUnit, valorTotal);
             }
+            
+            // Valores médios e menor preço
             item.push(
                 row.querySelector('.valor-medio-unit').textContent,
                 row.querySelector('.menor-valor-unit').textContent
             );
+            
             tableData.push(item);
         });
         
@@ -638,21 +535,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const rows = document.querySelectorAll('.item-row');
         rows.forEach(row => {
             // Obter todas as marcas
-            let marcasInfo = '';
-            let next = row.nextSibling;
-            let marcasArr = [];
-            while (next && next.classList && next.classList.contains('marca-row')) {
-                const marcaNome = next.querySelector('.item-marca')?.value || '';
-                let valores = [];
-                for (let i = 1; i <= 3; i++) {
-                    const valorUnit = next.querySelector('.valor-unit-marca-' + i)?.value || '';
-                    const valorTotal = next.querySelector('.valor-total-marca-' + i)?.textContent || '';
-                    valores.push(`Fornecedor ${i}: ${valorUnit} (${valorTotal})`);
-                }
-                marcasArr.push(`${marcaNome} [${valores.join(' | ')}]`);
-                next = next.nextSibling;
-            }
-            marcasInfo = marcasArr.join('; ');
+            const marcaItems = row.querySelectorAll('.marca-item');
+            const marcasInfo = Array.from(marcaItems).map(item => {
+                return item.querySelector('.item-marca').value;
+            }).filter(Boolean).join(', ');
+            
             const rowData = [
                  row.querySelector('.item-number').textContent,
                  row.querySelector('.item-nome').value,
@@ -661,17 +548,22 @@ document.addEventListener('DOMContentLoaded', function() {
                  marcasInfo,
                  row.querySelector('.item-quantidade').value
             ];
+            
+            // Valores dos fornecedores
             for (let i = 1; i <= 3; i++) {
                 const valorUnit = row.querySelector(`.valor-unit-${i}`).value;
                 const valorTotal = row.querySelector(`.valor-total-${i}`).textContent;
                 rowData.push(valorUnit, valorTotal);
             }
+            
+            // Valores médios e menor preço
             rowData.push(
                 row.querySelector('.valor-medio-unit').textContent,
                 row.querySelector('.valor-medio-total').textContent,
                 row.querySelector('.menor-valor-unit').textContent,
                 row.querySelector('.menor-valor-total').textContent
             );
+            
             licitacaoData.push(rowData);
         });
         
@@ -771,40 +663,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 nome: row.querySelector('.item-nome').value,
                 descricao: row.querySelector('.item-descricao').value,
                 unidade: row.querySelector('.item-unidade').value,
+                marca: row.querySelector('.item-marca').value,
                 quantidade: parseInt(row.querySelector('.item-quantidade').value),
-                marcas: [],
                 orcamentos: []
             };
-            // Coletar marcas deste item
-            let next = row.nextSibling;
-            while (next && next.classList && next.classList.contains('marca-row')) {
-                let marcaObj = {
-                    nome: next.querySelector('.item-marca')?.value || '',
-                    valores: []
-                };
-                for (let i = 1; i <= 3; i++) {
-                    const valorUnit = parseFloat(next.querySelector('.valor-unit-marca-' + i)?.value) || 0;
-                    const valorTotal = next.querySelector('.valor-total-marca-' + i)?.textContent || 'R$ 0,00';
-                    marcaObj.valores.push({ fornecedor: i, valorUnitario: valorUnit, valorTotal: valorTotal });
-                }
-                item.marcas.push(marcaObj);
-                next = next.nextSibling;
-            }
+            
             // Coletar dados de cada orçamento para o item
             for (let i = 1; i <= 3; i++) {
                 const valorUnit = parseFloat(row.querySelector(`.valor-unit-${i}`).value) || 0;
                 const valorTotal = parseFloat(row.querySelector(`.valor-total-${i}`).textContent.replace('R$ ', '').replace('.', '').replace(',', '.')) || 0;
+                
                 item.orcamentos.push({
                     fornecedor: i,
                     valorUnitario: valorUnit,
                     valorTotal: valorTotal
                 });
             }
+            
             // Adicionar valores médios e menor preço
             item.valorMedioUnitario = parseFloat(row.querySelector('.valor-medio-unit').textContent.replace('R$ ', '').replace('.', '').replace(',', '.')) || 0;
             item.valorMedioTotal = parseFloat(row.querySelector('.valor-medio-total').textContent.replace('R$ ', '').replace('.', '').replace(',', '.')) || 0;
             item.menorValorUnitario = parseFloat(row.querySelector('.menor-valor-unit').textContent.replace('R$ ', '').replace('.', '').replace(',', '.')) || 0;
             item.menorValorTotal = parseFloat(row.querySelector('.menor-valor-total').textContent.replace('R$ ', '').replace('.', '').replace(',', '.')) || 0;
+            
             dadosLicitacao.itens.push(item);
         });
         

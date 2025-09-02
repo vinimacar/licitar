@@ -145,16 +145,10 @@ document.addEventListener('DOMContentLoaded', function() {
             <td></td>
             <td colspan="4"></td>
             <td><input type="text" class="item-marca" placeholder="Marca"></td>
-            <td></td>
-            <td><input type="number" class="valor-unit-marca-1" placeholder="Valor Unit. 1" step="0.01" min="0"></td>
-            <td></td>
-            <td></td>
-            <td><input type="number" class="valor-unit-marca-2" placeholder="Valor Unit. 2" step="0.01" min="0"></td>
-            <td></td>
-            <td></td>
-            <td><input type="number" class="valor-unit-marca-3" placeholder="Valor Unit. 3" step="0.01" min="0"></td>
-            <td></td>
-            <td colspan="6"></td>
+            <td colspan="2"><input type="number" class="valor-unit-marca-1" placeholder="Valor Unit. Forn. 1" step="0.01" min="0"></td>
+            <td colspan="2"><input type="number" class="valor-unit-marca-2" placeholder="Valor Unit. Forn. 2" step="0.01" min="0"></td>
+            <td colspan="2"><input type="number" class="valor-unit-marca-3" placeholder="Valor Unit. Forn. 3" step="0.01" min="0"></td>
+            <td colspan="7"></td>
             <td><button type="button" class="btn-remove-marca"><i class="fas fa-minus"></i></button></td>
         `;
         // Adiciona a linha logo após as outras marcas do mesmo item

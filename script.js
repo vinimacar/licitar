@@ -142,16 +142,35 @@ document.addEventListener('DOMContentLoaded', function() {
         novaMarca.className = 'marca-item';
         novaMarca.innerHTML = `
             <input type="text" class="item-marca" placeholder="Marca adicional">
+            <input type="number" class="valor-unit-marca" placeholder="Valor Unitário" step="0.01" min="0">
+            <span class="valor-total-marca">R$ 0,00</span>
             <button type="button" class="btn-remove-marca"><i class="fas fa-minus"></i></button>
         `;
-        
+
         // Adicionar event listener para remover marca
         const removeMarcaBtn = novaMarca.querySelector('.btn-remove-marca');
         removeMarcaBtn.addEventListener('click', () => {
             novaMarca.remove();
         });
-        
+
+        // Atualizar valor total ao digitar valor unitário ou quantidade
+        const valorUnitMarca = novaMarca.querySelector('.valor-unit-marca');
+        const valorTotalMarca = novaMarca.querySelector('.valor-total-marca');
+        const qtdInput = row.querySelector('.item-quantidade');
+        function atualizarValorTotalMarca() {
+            const qtd = parseFloat(qtdInput.value) || 0;
+            const valorUnit = parseFloat(valorUnitMarca.value) || 0;
+            valorTotalMarca.textContent = formatarMoeda(qtd * valorUnit);
+        }
+        valorUnitMarca.addEventListener('input', atualizarValorTotalMarca);
+        qtdInput.addEventListener('input', atualizarValorTotalMarca);
+
         marcasWrapper.appendChild(novaMarca);
+
+        // Foco automático no campo de valor unitário
+        valorUnitMarca.focus();
+
+        atualizarValorTotalMarca();
     }
     
 

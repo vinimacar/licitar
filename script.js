@@ -193,12 +193,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Atualizar valores principais ao digitar
         ['valor-unit-marca-1','valor-unit-marca-2','valor-unit-marca-3'].forEach((cls, idx) => {
-            newRow.querySelector('.' + cls).addEventListener('input', () => {
+            const input = newRow.querySelector('.' + cls);
+            input.addEventListener('input', () => {
                 atualizarValoresPrincipaisDoItem(itemRow);
             });
+            // Garante que o campo está habilitado e visível
+            input.removeAttribute('disabled');
+            input.style.display = '';
         });
-        // Foco automático no campo de nome da marca
-        newRow.querySelector('.item-marca').focus();
+        // Foco automático no campo de valor unitário 1
+        newRow.querySelector('.valor-unit-marca-1').focus();
 
         // Atualiza os valores principais do item para refletir a última marca informada
         function atualizarValoresPrincipaisDoItem(itemRow) {

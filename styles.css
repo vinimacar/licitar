@@ -1,3 +1,22 @@
+/* Destaca visualmente cada linha de marca para facilitar a leitura de múltiplas marcas por item */
+tr.marca-row {
+    border-top: 2px dashed #ffe082;
+    border-bottom: 2px dashed #ffe082;
+    background: #fffde7;
+}
+tr.marca-row:not(:last-child) {
+    margin-bottom: 4px;
+}
+tr.marca-row td {
+    border-top: 2px dashed #ffe082 !important;
+    border-bottom: 2px dashed #ffe082 !important;
+}
+tr.marca-row input[type="text"] {
+    background: #fffbe6;
+    border: 2px solid #ffe082;
+    font-weight: bold;
+    color: #333;
+}
 /* Destaca os campos de valor unitário das marcas para facilitar a digitação */
 tr.marca-row input.valor-unit-marca-1,
 tr.marca-row input.valor-unit-marca-2,

@@ -1,3 +1,14 @@
+/* Destaca os campos de valor unitário das marcas para facilitar a digitação */
+tr.marca-row input.valor-unit-marca-1,
+tr.marca-row input.valor-unit-marca-2,
+tr.marca-row input.valor-unit-marca-3 {
+    background: #fffbe6;
+    border: 2px solid #ffc107;
+    font-weight: bold;
+    width: 120px;
+    font-size: 16px;
+    color: #333;
+}
 /* Destaca o menor valor unitário de cada orçamento entre as marcas do item */
 .menor-preco-marca {
     background: #d4ffd4 !important;

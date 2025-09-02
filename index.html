@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Licitação para Escolas Públicas</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Bibliotecas para exportação -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Sistema de Licitação para Escolas Públicas</h1>
+        </header>
+        
+        <!-- Cadastro de Fornecedores -->
+        <div class="fornecedores-container" id="fornecedores-section">
+            <h2>Cadastro de Fornecedores</h2>
+            <div class="fornecedores-grid">
+                <div class="fornecedor-card">
+                    <h3>Fornecedor 1</h3>
+                    <div class="form-group">
+                        <label for="fornecedor1-nome">Nome:</label>
+                        <input type="text" id="fornecedor1-nome" class="fornecedor-nome" placeholder="Nome do Fornecedor 1">
+                    </div>
+                    <div class="form-group">
+                        <label for="fornecedor1-cnpj">CNPJ:</label>
+                        <input type="text" id="fornecedor1-cnpj" class="fornecedor-cnpj" placeholder="00.000.000/0000-00">
+                    </div>
+                    <div class="form-group">
+                        <label for="fornecedor1-contato">Contato:</label>
+                        <input type="text" id="fornecedor1-contato" class="fornecedor-contato" placeholder="Telefone/Email">
+                    </div>
+                </div>
+                
+                <div class="fornecedor-card">
+                    <h3>Fornecedor 2</h3>
+                    <div class="form-group">
+                        <label for="fornecedor2-nome">Nome:</label>
+                        <input type="text" id="fornecedor2-nome" class="fornecedor-nome" placeholder="Nome do Fornecedor 2">
+                    </div>
+                    <div class="form-group">
+                        <label for="fornecedor2-cnpj">CNPJ:</label>
+                        <input type="text" id="fornecedor2-cnpj" class="fornecedor-cnpj" placeholder="00.000.000/0000-00">
+                    </div>
+                    <div class="form-group">
+                        <label for="fornecedor2-contato">Contato:</label>
+                        <input type="text" id="fornecedor2-contato" class="fornecedor-contato" placeholder="Telefone/Email">
+                    </div>
+                </div>
+                
+                <div class="fornecedor-card">
+                    <h3>Fornecedor 3</h3>
+                    <div class="form-group">
+                        <label for="fornecedor3-nome">Nome:</label>
+                        <input type="text" id="fornecedor3-nome" class="fornecedor-nome" placeholder="Nome do Fornecedor 3">
+                    </div>
+                    <div class="form-group">
+                        <label for="fornecedor3-cnpj">CNPJ:</label>
+                        <input type="text" id="fornecedor3-cnpj" class="fornecedor-cnpj" placeholder="00.000.000/0000-00">
+                    </div>
+                    <div class="form-group">
+                        <label for="fornecedor3-contato">Contato:</label>
+                        <input type="text" id="fornecedor3-contato" class="fornecedor-contato" placeholder="Telefone/Email">
+                    </div>
+                </div>
+            </div>
+            <button id="salvar-fornecedores" class="btn"><i class="fas fa-save"></i> Salvar Fornecedores</button>
+        </div>
+        
+        <div class="controls">
+            <button id="add-item" class="btn"><i class="fas fa-plus"></i> Adicionar Item</button>
+            <button id="finalizar-licitacao" class="btn btn-success"><i class="fas fa-check-circle"></i> Finalizar Licitação</button>
+            <button id="salvar-licitacao" class="btn btn-primary"><i class="fas fa-save"></i> Salvar Licitação</button>
+            <button id="export-pdf" class="btn"><i class="fas fa-file-pdf"></i> Exportar PDF</button>
+            <button id="export-xls" class="btn"><i class="fas fa-file-excel"></i> Exportar XLS</button>
+            <button id="print" class="btn"><i class="fas fa-print"></i> Imprimir</button>
+        </div>
+
+        <div class="table-container">
+            <table id="licitacao-table">
+                <thead>
+                    <tr>
+                        <th rowspan="2">N.</th>
+                        <th rowspan="2" class="col-item">Item</th>
+                        <th rowspan="2" class="col-descricao">Descrição Detalhada</th>
+                        <th rowspan="2">Unidade</th>
+                        <th rowspan="2">Marca</th>
+                        <th rowspan="2">Qtd</th>
+                        <th colspan="3">Orçamento 1</th>
+                        <th colspan="3">Orçamento 2</th>
+                        <th colspan="3">Orçamento 3</th>
+                        <th colspan="2">Valor Médio</th>
+                        <th colspan="2">Menor Preço</th>
+                        <th rowspan="2">Ações</th>
+                    </tr>
+                    <tr>
+                        <th>Fornecedor</th>
+                        <th>Valor Unit.</th>
+                        <th>Valor Total</th>
+                        <th>Fornecedor</th>
+                        <th>Valor Unit.</th>
+                        <th>Valor Total</th>
+                        <th>Fornecedor</th>
+                        <th>Valor Unit.</th>
+                        <th>Valor Total</th>
+                        <th>Valor Unit.</th>
+                        <th>Valor Total</th>
+                        <th>Valor Unit.</th>
+                        <th>Valor Total</th>
+                    </tr>
+                </thead>
+                <tbody id="items-container">
+                    <!-- Itens serão adicionados aqui dinamicamente -->
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="8" class="text-right"><strong>Valor Total Orçamento 1:</strong></td>
+                        <td id="total-orcamento-1">R$ 0,00</td>
+                        <td colspan="2" class="text-right"><strong>Valor Total Orçamento 2:</strong></td>
+                        <td id="total-orcamento-2">R$ 0,00</td>
+                        <td colspan="2" class="text-right"><strong>Valor Total Orçamento 3:</strong></td>
+                        <td id="total-orcamento-3">R$ 0,00</td>
+                        <td colspan="1" class="text-right"><strong>Valor Total Final:</strong></td>
+                        <td id="total-final">R$ 0,00</td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <!-- Template para novos itens -->
+    <template id="item-template">
+        <tr class="item-row">
+            <td class="item-number"></td>
+            <td><input type="text" class="item-nome" placeholder="Nome do item"></td>
+            <td><textarea class="item-descricao" placeholder="Descrição detalhada"></textarea></td>
+            <td><input type="text" class="item-unidade" placeholder="Unidade"></td>
+            <td class="marca-container">
+                <div class="marcas-wrapper">
+                    <div class="marca-item">
+                        <input type="text" class="item-marca" placeholder="Marca">
+
+                    </div>
+                </div>
+                <button type="button" class="btn-add-marca"><i class="fas fa-plus"></i></button>
+            </td>
+            <td><input type="number" class="item-quantidade" value="1" min="1"></td>
+            
+            <!-- Orçamento 1 -->
+            <td class="fornecedor-cell fornecedor-cell-1"></td>
+            <td><input type="number" class="valor-unit-1" placeholder="0.00" step="0.01" min="0"></td>
+            <td class="valor-total-1">R$ 0,00</td>
+            
+            <!-- Orçamento 2 -->
+            <td class="fornecedor-cell fornecedor-cell-2"></td>
+            <td><input type="number" class="valor-unit-2" placeholder="0.00" step="0.01" min="0"></td>
+            <td class="valor-total-2">R$ 0,00</td>
+            
+            <!-- Orçamento 3 -->
+            <td class="fornecedor-cell fornecedor-cell-3"></td>
+            <td><input type="number" class="valor-unit-3" placeholder="0.00" step="0.01" min="0"></td>
+            <td class="valor-total-3">R$ 0,00</td>
+            
+            <!-- Valor médio -->
+            <td class="valor-medio-unit">R$ 0,00</td>
+            <td class="valor-medio-total">R$ 0,00</td>
+            
+            <!-- Menor preço -->
+            <td class="menor-valor-unit">R$ 0,00</td>
+            <td class="menor-valor-total">R$ 0,00</td>
+            
+            <td>
+                <button class="btn-delete"><i class="fas fa-trash"></i></button>
+            </td>
+        </tr>
+    </template>
+
+</div>
+
+    <!-- Modal para exibir o resultado da licitação -->
+    <div id="resultado-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Resultado da Licitação</h2>
+            <div id="resultado-licitacao">
+                <div class="vencedor-info">
+                    <h3>Fornecedor Vencedor:</h3>
+                    <p id="vencedor-nome"></p>
+                    <p id="vencedor-cnpj"></p>
+                    <p id="vencedor-contato"></p>
+                </div>
+                <div class="resumo-licitacao">
+                    <h3>Resumo da Licitação:</h3>
+                    <p>Valor Total: <span id="valor-total-licitacao"></span></p>
+                    <p>Total de Itens: <span id="total-itens-licitacao"></span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <script src="script.js"></script>
+</body>
+</html>

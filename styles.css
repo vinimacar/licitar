@@ -1,3 +1,8 @@
+/* Destaca o menor valor unitário de cada orçamento entre as marcas do item */
+.menor-preco-marca {
+    background: #d4ffd4 !important;
+    font-weight: bold;
+}
 /* Estilos gerais */
 * {
     box-sizing: border-box;

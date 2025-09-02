@@ -142,39 +142,23 @@
             <td><textarea class="item-descricao" placeholder="Descrição detalhada"></textarea></td>
             <td><input type="text" class="item-unidade" placeholder="Unidade"></td>
             <td><input type="number" class="item-quantidade" value="1" min="1"></td>
-            <td class="marca-container">
-                <div class="marcas-wrapper">
-                    <div class="marca-item">
-                        <input type="radio" name="marca-selecionada-0" class="marca-radio" title="Selecionar esta marca">
-                        <input type="text" class="item-marca" placeholder="Marca">
-                        <button type="button" class="btn-remove-marca"><i class="fas fa-minus"></i></button>
-                    </div>
-                </div>
+            <td class="marca-cell" rowspan="1">
+                <div class="marcas-wrapper"></div>
                 <button type="button" class="btn-add-marca"><i class="fas fa-plus"></i></button>
             </td>
-            <!-- Orçamento 1 -->
             <td class="fornecedor-cell fornecedor-cell-1"></td>
             <td><input type="number" class="valor-unit-1" placeholder="0.00" step="0.01" min="0"></td>
             <td class="valor-total-1">R$ 0,00</td>
-            
-            <!-- Orçamento 2 -->
             <td class="fornecedor-cell fornecedor-cell-2"></td>
             <td><input type="number" class="valor-unit-2" placeholder="0.00" step="0.01" min="0"></td>
             <td class="valor-total-2">R$ 0,00</td>
-            
-            <!-- Orçamento 3 -->
             <td class="fornecedor-cell fornecedor-cell-3"></td>
             <td><input type="number" class="valor-unit-3" placeholder="0.00" step="0.01" min="0"></td>
             <td class="valor-total-3">R$ 0,00</td>
-            
-            <!-- Valor médio -->
             <td class="valor-medio-unit">R$ 0,00</td>
             <td class="valor-medio-total">R$ 0,00</td>
-            
-            <!-- Menor preço -->
             <td class="menor-valor-unit">R$ 0,00</td>
             <td class="menor-valor-total">R$ 0,00</td>
-            
             <td>
                 <button class="btn-delete"><i class="fas fa-trash"></i></button>
             </td>

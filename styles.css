@@ -1,50 +1,321 @@
-/* Destaca visualmente cada linha de marca para facilitar a leitura de múltiplas marcas por item */
-tr.marca-row {
-    border-top: 2px dashed #ffe082;
-    border-bottom: 2px dashed #ffe082;
-    background: #fffde7;
-}
-tr.marca-row:not(:last-child) {
-    margin-bottom: 4px;
-}
-tr.marca-row td {
-    border-top: 2px dashed #ffe082 !important;
-    border-bottom: 2px dashed #ffe082 !important;
-}
-tr.marca-row input[type="text"] {
-    background: #fffbe6;
-    border: 2px solid #ffe082;
-    font-weight: bold;
-    color: #333;
-}
-/* Destaca os campos de valor unitário das marcas para facilitar a digitação */
-tr.marca-row input.valor-unit-marca-1,
-tr.marca-row input.valor-unit-marca-2,
-tr.marca-row input.valor-unit-marca-3 {
-    background: #fffbe6;
-    border: 2px solid #ffc107;
-    font-weight: bold;
-    width: 120px;
-    font-size: 16px;
-    color: #333;
-}
-/* Destaca o menor valor unitário de cada orçamento entre as marcas do item */
-.menor-preco-marca {
-    background: #d4ffd4 !important;
-    font-weight: bold;
-}
-/* Estilos gerais */
+/* --- DESIGN CLEAN E MODERNO --- */
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
 }
 
 body {
-    background-color: #f5f5f5;
-    color: #333;
-    line-height: 1.6;
+    background: #f7fafd;
+    color: #222;
+    line-height: 1.7;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 32px;
+    padding: 32px 0 24px 0;
+    background: #eaf3fb;
+    color: #1a355e;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(30,60,90,0.04);
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px;
+}
+
+/* Fornecedores */
+.fornecedores-container {
+    background: #fff;
+    padding: 24px;
+    border-radius: 10px;
+    margin-bottom: 32px;
+    box-shadow: 0 2px 8px rgba(30,60,90,0.04);
+}
+.fornecedores-container h2 {
+    color: #1a355e;
+    margin-bottom: 18px;
+    border-bottom: 1px solid #e3eaf2;
+    padding-bottom: 8px;
+}
+.fornecedores-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 18px;
+    margin-bottom: 18px;
+}
+.fornecedor-card {
+    background: #f7fafd;
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid #e3eaf2;
+}
+.fornecedor-card h3 {
+    color: #1a355e;
+    margin-bottom: 10px;
+    font-size: 1.1em;
+}
+.form-group label {
+    font-weight: 500;
+    margin-bottom: 3px;
+}
+.fornecedor-nome, .fornecedor-cnpj, .fornecedor-contato {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #e3eaf2;
+    border-radius: 5px;
+    background: #fafdff;
+    margin-bottom: 8px;
+    font-size: 1em;
+    transition: border 0.2s;
+}
+.fornecedor-nome:focus, .fornecedor-cnpj:focus, .fornecedor-contato:focus {
+    border: 1.5px solid #7bb6fa;
+    background: #f0f6ff;
+}
+
+/* Botões */
+.btn, .btn-add-marca, .btn-remove-marca, .btn-delete, .btn-success, .btn-primary {
+    background: #eaf3fb;
+    color: #1a355e;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    box-shadow: 0 1px 2px rgba(30,60,90,0.03);
+}
+.btn:hover, .btn-add-marca:hover, .btn-remove-marca:hover, .btn-delete:hover, .btn-success:hover, .btn-primary:hover {
+    background: #d2e6f7;
+    color: #0d223a;
+}
+.btn-success {
+    background: #d6f5e6;
+    color: #217a4a;
+}
+.btn-success:hover {
+    background: #b8e9d1;
+    color: #145c2e;
+}
+.btn-primary {
+    background: #dbeafe;
+    color: #2563eb;
+}
+.btn-primary:hover {
+    background: #b6d4fa;
+    color: #1d4ed8;
+}
+.btn-delete {
+    background: #ffeaea;
+    color: #c0392b;
+}
+.btn-delete:hover {
+    background: #ffd6d6;
+    color: #a93226;
+}
+.btn-add-marca, .btn-remove-marca {
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1em;
+}
+.btn-add-marca {
+    background: #eafbe7;
+    color: #217a4a;
+}
+.btn-add-marca:hover {
+    background: #d2f7ce;
+    color: #145c2e;
+}
+.btn-remove-marca {
+    background: #ffeaea;
+    color: #c0392b;
+}
+.btn-remove-marca:hover {
+    background: #ffd6d6;
+    color: #a93226;
+}
+
+/* Tabela */
+.table-container {
+    overflow-x: auto;
+    margin-bottom: 32px;
+    box-shadow: 0 2px 8px rgba(30,60,90,0.04);
+    border-radius: 10px;
+}
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+}
+th, td {
+    padding: 12px 10px;
+    text-align: left;
+    border-bottom: 1px solid #e3eaf2;
+}
+th {
+    background: #eaf3fb;
+    color: #1a355e;
+    font-weight: 600;
+    font-size: 1em;
+}
+thead tr:nth-child(2) th {
+    background: #f5fafd;
+    color: #2563eb;
+}
+tbody tr:hover {
+    background: #f5fafd;
+}
+tfoot {
+    font-weight: 600;
+    background: #f5fafd;
+}
+.col-item {
+    min-width: 120px;
+}
+.col-descricao {
+    min-width: 200px;
+}
+.item-quantidade {
+    width: 80px;
+    padding: 6px;
+    font-size: 1em;
+}
+
+/* Marcas */
+tr.marca-row {
+    background: #fafdff;
+    border-top: 1.5px dashed #e3eaf2;
+    border-bottom: 1.5px dashed #e3eaf2;
+}
+tr.marca-row td {
+    border-top: 1.5px dashed #e3eaf2 !important;
+    border-bottom: 1.5px dashed #e3eaf2 !important;
+}
+tr.marca-row input[type="text"], tr.marca-row input[type="number"] {
+    background: #fafdff;
+    border: 1px solid #e3eaf2;
+    color: #1a355e;
+    font-weight: 500;
+}
+.menor-preco-marca {
+    background: #e6fbe6 !important;
+    color: #217a4a !important;
+    font-weight: 600;
+}
+
+input, textarea {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #e3eaf2;
+    border-radius: 5px;
+    background: #fafdff;
+    font-size: 1em;
+    transition: border 0.2s;
+}
+input:focus, textarea:focus {
+    border: 1.5px solid #7bb6fa;
+    background: #f0f6ff;
+}
+textarea {
+    resize: vertical;
+    min-height: 50px;
+}
+input[type="number"] {
+    text-align: right;
+}
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(30,60,90,0.15);
+}
+.modal-content {
+    background: #fff;
+    margin: 8% auto;
+    padding: 24px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 480px;
+    box-shadow: 0 4px 16px rgba(30,60,90,0.10);
+}
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+.close:hover {
+    color: #1a355e;
+}
+
+#resultado-licitacao {
+    margin-top: 18px;
+}
+.vencedor-info, .resumo-licitacao {
+    margin-bottom: 16px;
+    padding: 12px;
+    background: #f7fafd;
+    border-radius: 6px;
+}
+
+/* Responsividade */
+@media (max-width: 900px) {
+    .container {
+        padding: 8px;
+    }
+    th, td {
+        padding: 7px 5px;
+        font-size: 0.97em;
+    }
+    .fornecedores-container, .modal-content {
+        padding: 10px;
+    }
+}
+
+@media print {
+    .controls, .actions, #fornecedores-section {
+        display: none;
+    }
+    body, .container {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+    }
+    table {
+        width: 100%;
+        font-size: 10pt;
+    }
+    tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+    }
+    thead {
+        display: table-header-group;
+    }
+    tfoot {
+        display: table-footer-group;
+    }
 }
 
 /* Estilos para múltiplas marcas */

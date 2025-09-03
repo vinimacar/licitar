@@ -58,13 +58,15 @@ document.addEventListener('DOMContentLoaded', function() {
     addItem();
     
     // Event Listeners
-    addItemBtn.addEventListener('click', addItem);
-    exportPdfBtn.addEventListener('click', exportToPdf);
-    document.getElementById('export-xls').addEventListener('click', exportToXLS);
-    printBtn.addEventListener('click', printTable);
-    salvarFornecedoresBtn.addEventListener('click', salvarFornecedores);
-    document.getElementById('finalizar-licitacao').addEventListener('click', finalizarLicitacao);
-    salvarLicitacaoBtn.addEventListener('click', salvarLicitacao);
+    if (addItemBtn) addItemBtn.addEventListener('click', addItem);
+    if (exportPdfBtn) exportPdfBtn.addEventListener('click', exportToPdf);
+    const exportXlsBtn = document.getElementById('export-xls');
+    if (exportXlsBtn) exportXlsBtn.addEventListener('click', exportToXLS);
+    if (printBtn) printBtn.addEventListener('click', printTable);
+    if (salvarFornecedoresBtn) salvarFornecedoresBtn.addEventListener('click', salvarFornecedores);
+    const finalizarLicitacaoBtn = document.getElementById('finalizar-licitacao');
+    if (finalizarLicitacaoBtn) finalizarLicitacaoBtn.addEventListener('click', finalizarLicitacao);
+    if (salvarLicitacaoBtn) salvarLicitacaoBtn.addEventListener('click', salvarLicitacao);
     
     // Modal
     const modal = document.getElementById('resultado-modal');
@@ -140,8 +142,20 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Função para adicionar nova marca
     function adicionarMarca(row) {
-        // Cria uma nova linha de marca como sublinha do item
+        // Permitir no máximo 3 marcas por item
         const itemRow = row;
+        let marcaCount = 0;
+        let nextCount = itemRow.nextSibling;
+        while (nextCount && nextCount.classList && nextCount.classList.contains('marca-row')) {
+            marcaCount++;
+            nextCount = nextCount.nextSibling;
+        }
+        if (marcaCount >= 3) {
+            alert('Cada item pode ter no máximo 3 marcas diferentes.');
+            return;
+        }
+
+        // Cria a nova linha de marca
         const newRow = document.createElement('tr');
         newRow.className = 'marca-row';
         newRow.innerHTML = `
@@ -150,29 +164,12 @@ document.addEventListener('DOMContentLoaded', function() {
             <td></td> <!-- Descrição -->
             <td></td> <!-- Unidade -->
             <td></td> <!-- Qtd -->
-            <td><input type="text" class="item-marca" placeholder="Marca"></td> <!-- Marca -->
-            <td></td> <!-- Fornecedor 1 -->
-            <td><input type="number" class="valor-unit-marca-1" placeholder="Digite o valor" step="0.01" min="0" autofocus></td> <!-- Valor Unit. 1 -->
-            <td></td> <!-- Valor Total 1 -->
-            <td></td> <!-- Fornecedor 2 -->
-            <td><input type="number" class="valor-unit-marca-2" placeholder="Digite o valor" step="0.01" min="0"></td> <!-- Valor Unit. 2 -->
-            <td></td> <!-- Valor Total 2 -->
-            <td></td> <!-- Fornecedor 3 -->
-            <td><input type="number" class="valor-unit-marca-3" placeholder="Digite o valor" step="0.01" min="0"></td> <!-- Valor Unit. 3 -->
-            <td></td> <!-- Valor Total 3 -->
-            <td></td> <!-- Valor Médio Unit. -->
-            <td></td> <!-- Valor Médio Total -->
-            <td></td> <!-- Menor Valor Unit. -->
-            <td></td> <!-- Menor Valor Total -->
+            <td><input type="text" class="item-marca" placeholder="Marca"></td>
+            <td><input type="number" class="valor-unit-marca" placeholder="Valor unitário" step="0.01" min="0"></td>
+            <td class="valor-total-marca">R$ 0,00</td>
+            <td colspan="4"></td>
             <td><button type="button" class="btn-remove-marca"><i class="fas fa-minus"></i></button></td>
         `;
-        // Garante que todos os campos de valor unitário estejam habilitados e visíveis
-        newRow.querySelectorAll('input[type="number"]').forEach(input => {
-            input.removeAttribute('disabled');
-            input.style.display = '';
-        });
-        // Garante que todos os campos de valor unitário estejam habilitados
-        newRow.querySelectorAll('input[type="number"]').forEach(input => input.removeAttribute('disabled'));
         // Adiciona a linha logo após as outras marcas do mesmo item
         let next = itemRow.nextSibling;
         while (next && next.classList && next.classList.contains('marca-row')) {
@@ -191,60 +188,57 @@ document.addEventListener('DOMContentLoaded', function() {
             atualizarValoresPrincipaisDoItem(itemRow);
         });
 
-        // Atualizar valores principais ao digitar (marca -> principal)
-        ['valor-unit-marca-1','valor-unit-marca-2','valor-unit-marca-3'].forEach((cls, idx) => {
-            const input = newRow.querySelector('.' + cls);
-            const totalCell = newRow.querySelector('.valor-total-marca-' + (idx+1));
-            input.addEventListener('input', () => {
-                // Calcular valor total da marca
-                const quantidade = parseFloat(itemRow.querySelector('.item-quantidade').value) || 0;
-                const valorUnit = parseFloat(input.value) || 0;
-                if (totalCell) {
-                    totalCell.textContent = formatarMoeda(valorUnit * quantidade);
-                }
-                atualizarValoresPrincipaisDoItem(itemRow);
-            });
-            input.removeAttribute('disabled');
-            input.style.display = '';
+        // Atualizar valor total da marca ao digitar
+        const valorUnitInput = newRow.querySelector('.valor-unit-marca');
+        const valorTotalCell = newRow.querySelector('.valor-total-marca');
+        valorUnitInput.addEventListener('input', () => {
+            const quantidade = parseFloat(itemRow.querySelector('.item-quantidade').value) || 0;
+            const valorUnit = parseFloat(valorUnitInput.value) || 0;
+            valorTotalCell.textContent = formatarMoeda(valorUnit * quantidade);
+            atualizarValoresPrincipaisDoItem(itemRow);
         });
-        // Atualizar marca ao digitar nos campos principais (principal -> marca)
-        for (let i = 1; i <= 3; i++) {
-            const principalInput = itemRow.querySelector('.valor-unit-' + i);
-            principalInput.addEventListener('input', () => {
-                // Atualiza o campo da última marca, se houver
-                let next = itemRow.nextSibling;
-                let ultimaMarca = null;
-                while (next && next.classList && next.classList.contains('marca-row')) {
-                    ultimaMarca = next;
-                    next = next.nextSibling;
-                }
-                if (ultimaMarca) {
-                    const marcaInput = ultimaMarca.querySelector('.valor-unit-marca-' + i);
-                    if (marcaInput) marcaInput.value = principalInput.value;
-                }
-            });
-        }
-        // Foco automático no campo de valor unitário 1
-        newRow.querySelector('.valor-unit-marca-1').focus();
+        // Foco automático no campo de valor unitário
+        valorUnitInput.focus();
 
         // Atualiza os valores principais do item para refletir a última marca informada
         function atualizarValoresPrincipaisDoItem(itemRow) {
             // Busca todas as linhas de marca logo após o item
             let next = itemRow.nextSibling;
-            let ultimaMarca = null;
+            let marcas = [];
             while (next && next.classList && next.classList.contains('marca-row')) {
-                ultimaMarca = next;
+                marcas.push(next);
                 next = next.nextSibling;
             }
-            if (ultimaMarca) {
-                for (let i = 1; i <= 3; i++) {
-                    const valor = ultimaMarca.querySelector('.valor-unit-marca-' + i).value;
-                    itemRow.querySelector('.valor-unit-' + i).value = valor;
-                }
-                // Dispara cálculo
-                if (typeof calcularItem === 'function') calcularItem(itemRow);
-                if (typeof calcularTotais === 'function') calcularTotais();
+            // Atualiza valor médio e menor preço
+            if (marcas.length > 0) {
+                let soma = 0;
+                let menor = Infinity;
+                let menorTotal = 0;
+                marcas.forEach(marcaRow => {
+                    const v = parseFloat(marcaRow.querySelector('.valor-unit-marca').value) || 0;
+                    const quantidade = parseFloat(itemRow.querySelector('.item-quantidade').value) || 0;
+                    soma += v;
+                    if (v < menor && v > 0) {
+                        menor = v;
+                        menorTotal = v * quantidade;
+                    }
+                });
+                const media = soma / marcas.length;
+                itemRow.querySelector('.valor-unit-item').textContent = '-';
+                itemRow.querySelector('.valor-total-item').textContent = '-';
+                itemRow.querySelector('.valor-medio-unit').textContent = formatarMoeda(media);
+                itemRow.querySelector('.valor-medio-total').textContent = formatarMoeda(media * (parseFloat(itemRow.querySelector('.item-quantidade').value) || 0));
+                itemRow.querySelector('.menor-valor-unit').textContent = menor !== Infinity ? formatarMoeda(menor) : 'R$ 0,00';
+                itemRow.querySelector('.menor-valor-total').textContent = menor !== Infinity ? formatarMoeda(menorTotal) : 'R$ 0,00';
+            } else {
+                itemRow.querySelector('.valor-unit-item').textContent = '-';
+                itemRow.querySelector('.valor-total-item').textContent = '-';
+                itemRow.querySelector('.valor-medio-unit').textContent = 'R$ 0,00';
+                itemRow.querySelector('.valor-medio-total').textContent = 'R$ 0,00';
+                itemRow.querySelector('.menor-valor-unit').textContent = 'R$ 0,00';
+                itemRow.querySelector('.menor-valor-total').textContent = 'R$ 0,00';
             }
+            if (typeof calcularTotais === 'function') calcularTotais();
         }
 
         // Função para atualizar o rowspan da célula de marca
@@ -268,38 +262,26 @@ document.addEventListener('DOMContentLoaded', function() {
     function setupItemListeners(row) {
         // Inputs que afetam cálculos
         const qtdInput = row.querySelector('.item-quantidade');
-        const valorUnit1 = row.querySelector('.valor-unit-1');
-        const valorUnit2 = row.querySelector('.valor-unit-2');
-        const valorUnit3 = row.querySelector('.valor-unit-3');
-        
-        // Elementos para exibir resultados
-        const valorTotal1 = row.querySelector('.valor-total-1');
-        const valorTotal2 = row.querySelector('.valor-total-2');
-        const valorTotal3 = row.querySelector('.valor-total-3');
-        const menorValorUnit = row.querySelector('.menor-valor-unit');
-        const menorValorTotal = row.querySelector('.menor-valor-total');
-        
+        // Se o input existir, adiciona o listener
+        if (qtdInput) {
+            qtdInput.addEventListener('input', () => {
+                if (typeof calcularItem === 'function') calcularItem(row);
+                if (typeof calcularTotais === 'function') calcularTotais();
+            });
+        }
         // Botão de excluir
         const deleteBtn = row.querySelector('.btn-delete');
-        
-        // Event listeners para cálculos
-        [qtdInput, valorUnit1, valorUnit2, valorUnit3].forEach(input => {
-            input.addEventListener('input', () => {
-                calcularItem(row);
-                calcularTotais();
+        if (deleteBtn) {
+            deleteBtn.addEventListener('click', () => {
+                if (document.querySelectorAll('.item-row').length > 1) {
+                    row.remove();
+                    if (typeof renumerarItens === 'function') renumerarItens();
+                    if (typeof calcularTotais === 'function') calcularTotais();
+                } else {
+                    alert('É necessário manter pelo menos um item na tabela.');
+                }
             });
-        });
-        
-        // Event listener para excluir item
-        deleteBtn.addEventListener('click', () => {
-            if (document.querySelectorAll('.item-row').length > 1) {
-                row.remove();
-                renumerarItens();
-                calcularTotais();
-            } else {
-                alert('É necessário manter pelo menos um item na tabela.');
-            }
-        });
+        }
     }
     
     // Calcular valores para um item específico

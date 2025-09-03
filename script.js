@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', function() {
         rows.forEach(row => {
             for (let i = 1; i <= 3; i++) {
                 const cell = row.querySelector(`.fornecedor-cell-${i}`);
-                cell.textContent = fornecedores[i].nome;
+                if (cell) cell.textContent = fornecedores[i].nome;
             }
         });
     }
@@ -287,68 +287,41 @@ document.addEventListener('DOMContentLoaded', function() {
     // Calcular valores para um item específico
     function calcularItem(row) {
         const quantidade = parseFloat(row.querySelector('.item-quantidade').value) || 0;
-        
-        // Calcular para cada orçamento
-        const valores = [];
-        let somaValoresUnit = 0;
-        let contadorValores = 0;
-        
-        for (let i = 1; i <= 3; i++) {
-            const valorUnit = parseFloat(row.querySelector(`.valor-unit-${i}`).value) || 0;
-            const valorTotal = valorUnit * quantidade;
-            
-            row.querySelector(`.valor-total-${i}`).textContent = formatarMoeda(valorTotal);
-            
-            if (valorUnit > 0) {
-                valores.push({
-                    indice: i,
-                    valorUnit: valorUnit,
-                    valorTotal: valorTotal
-                });
-                somaValoresUnit += valorUnit;
-                contadorValores++;
-            }
-            
-            // Remover classe de fornecedor vencedor
-            row.querySelector(`.fornecedor-cell-${i}`).classList.remove('fornecedor-vencedor');
+        // Buscar todas as linhas de marca após o item
+        let next = row.nextSibling;
+        let marcas = [];
+        while (next && next.classList && next.classList.contains('marca-row')) {
+            marcas.push(next);
+            next = next.nextSibling;
         }
-        
-        // Calcular valor médio
-        if (contadorValores > 0) {
-            const valorMedioUnit = somaValoresUnit / contadorValores;
-            const valorMedioTotal = valorMedioUnit * quantidade;
-            
-            row.querySelector('.valor-medio-unit').textContent = formatarMoeda(valorMedioUnit);
-            row.querySelector('.valor-medio-total').textContent = formatarMoeda(valorMedioTotal);
+        // Calcular média e menor valor
+        if (marcas.length > 0) {
+            let soma = 0;
+            let menor = Infinity;
+            let menorTotal = 0;
+            marcas.forEach(marcaRow => {
+                const v = parseFloat(marcaRow.querySelector('.valor-unit-marca').value) || 0;
+                soma += v;
+                if (v < menor && v > 0) {
+                    menor = v;
+                    menorTotal = v * quantidade;
+                }
+                // Atualizar valor total da marca
+                const valorTotalCell = marcaRow.querySelector('.valor-total-marca');
+                if (valorTotalCell) valorTotalCell.textContent = formatarMoeda(v * quantidade);
+            });
+            const media = soma / marcas.length;
+            row.querySelector('.valor-unit-item').textContent = '-';
+            row.querySelector('.valor-total-item').textContent = '-';
+            row.querySelector('.valor-medio-unit').textContent = formatarMoeda(media);
+            row.querySelector('.valor-medio-total').textContent = formatarMoeda(media * quantidade);
+            row.querySelector('.menor-valor-unit').textContent = menor !== Infinity ? formatarMoeda(menor) : 'R$ 0,00';
+            row.querySelector('.menor-valor-total').textContent = menor !== Infinity ? formatarMoeda(menorTotal) : 'R$ 0,00';
         } else {
+            row.querySelector('.valor-unit-item').textContent = '-';
+            row.querySelector('.valor-total-item').textContent = '-';
             row.querySelector('.valor-medio-unit').textContent = 'R$ 0,00';
             row.querySelector('.valor-medio-total').textContent = 'R$ 0,00';
-        }
-        
-        // Encontrar o menor preço
-        if (valores.length > 0) {
-            valores.sort((a, b) => a.valorUnit - b.valorUnit);
-            const menor = valores[0];
-            
-            row.querySelector('.menor-valor-unit').textContent = formatarMoeda(menor.valorUnit);
-            row.querySelector('.menor-valor-total').textContent = formatarMoeda(menor.valorTotal);
-            
-            // Destacar o menor preço e o fornecedor vencedor
-            for (let i = 1; i <= 3; i++) {
-                const unitCell = row.querySelector(`.valor-unit-${i}`).parentNode;
-                const totalCell = row.querySelector(`.valor-total-${i}`).parentNode;
-                
-                if (i === menor.indice) {
-                    unitCell.classList.add('menor-preco');
-                    totalCell.classList.add('menor-preco');
-                    // Destacar fornecedor vencedor
-                    row.querySelector(`.fornecedor-cell-${i}`).classList.add('fornecedor-vencedor');
-                } else {
-                    unitCell.classList.remove('menor-preco');
-                    totalCell.classList.remove('menor-preco');
-                }
-            }
-        } else {
             row.querySelector('.menor-valor-unit').textContent = 'R$ 0,00';
             row.querySelector('.menor-valor-total').textContent = 'R$ 0,00';
         }
@@ -365,16 +338,16 @@ document.addEventListener('DOMContentLoaded', function() {
         rows.forEach(row => {
             // Somar totais por orçamento
             for (let i = 1; i <= 3; i++) {
-                const valorTexto = row.querySelector(`.valor-total-${i}`).textContent;
+                const valorCell = row.querySelector(`.valor-total-${i}`);
+                const valorTexto = valorCell ? valorCell.textContent : 'R$ 0,00';
                 const valor = parseFloat(valorTexto.replace('R$ ', '').replace('.', '').replace(',', '.')) || 0;
-                
                 if (i === 1) totalOrcamento1 += valor;
                 if (i === 2) totalOrcamento2 += valor;
                 if (i === 3) totalOrcamento3 += valor;
             }
-            
             // Somar total final (menores preços)
-            const menorValorTexto = row.querySelector('.menor-valor-total').textContent;
+            const menorValorCell = row.querySelector('.menor-valor-total');
+            const menorValorTexto = menorValorCell ? menorValorCell.textContent : 'R$ 0,00';
             const menorValor = parseFloat(menorValorTexto.replace('R$ ', '').replace('.', '').replace(',', '.')) || 0;
             totalFinal += menorValor;
         });
